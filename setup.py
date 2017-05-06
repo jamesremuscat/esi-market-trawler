@@ -27,7 +27,7 @@ setup(
       """,
     setup_requires=[],
     tests_require=[],
-    install_requires=["python-dateutil", "psycopg2", "requests", "ujson", "xmltodict"],
+    install_requires=["python-dateutil", "psycopg2", "requests", "ujson"],
     entry_points={
         'console_scripts': [
             'esi-market-trawler = esi.market.trawler:main',
