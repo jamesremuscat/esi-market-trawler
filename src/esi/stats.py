@@ -117,6 +117,13 @@ class StatsHandler(object):
     def __init__(self, stats_collector):
         self.stats_collector = stats_collector
 
+    def start_trawl(self):
+        self.stats_collector.datapoint("current_trawl_started", datetime.datetime.now().isoformat())
+
+    def end_trawl(self):
+        self.stats_collector.datapoint("current_trawl_started", None)
+        self.stats_collector.datapoint("previous_trawl_finished", datetime.datetime.now().isoformat())
+
     def start_region(self, region):
         self.stats_collector.datapoint('current_region', region)
 

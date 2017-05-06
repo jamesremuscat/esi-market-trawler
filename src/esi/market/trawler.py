@@ -24,6 +24,7 @@ class Trawler(object):
         region_count = len(regions)
 
         while True:
+            self._each_handler('start_trawl')
             for idx, region in enumerate(regions):
                 self.log.info('Trawling for region {} [{}/{}]'.format(region, idx + 1, region_count))
                 self._each_handler('start_region', region)
@@ -37,6 +38,7 @@ class Trawler(object):
                     self._each_handler('orders', orders)
                     page += 1
                 self._each_handler('end_region', region)
+            self._each_handler('finish_trawl')
 
 
 class DumpFirstOrder(object):
