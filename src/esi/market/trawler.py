@@ -1,17 +1,21 @@
 from esi import Credentials, ESI
+from esi.market import strategies
+from esi.market.postgres import PostgresHandler
+from esi.stats import StatsHandler, StatsCollector, StatsWriter, StatsDBWriter
+
+import datetime
 import logging
 import os
 import random
-from esi.market.postgres import PostgresHandler
-from esi.stats import StatsHandler, StatsCollector, StatsWriter, StatsDBWriter
 
 
 class Trawler(object):
     log = logging.getLogger(__name__)
 
-    def __init__(self, handlers=[], credentials=None):
+    def __init__(self, handlers=[], credentials=None, strategy=strategies.CONTINUOUS):
         self._esi = ESI(credentials)
         self._handlers = handlers
+        self._strategy = strategy
 
     def _each_handler(self, method, *args, **kwargs):
         for handler in self._handlers:
@@ -25,6 +29,7 @@ class Trawler(object):
 
         while True:
             self._each_handler('start_trawl')
+            trawl_start = datetime.datetime.utcnow()
             for idx, region in enumerate(regions):
                 self.log.info('Trawling for region {} [{}/{}]'.format(region, idx + 1, region_count))
                 self._each_handler('start_region', region)
@@ -39,6 +44,7 @@ class Trawler(object):
                     page += 1
                 self._each_handler('end_region', region)
             self._each_handler('finish_trawl')
+            self.strategy(trawl_start)
 
 
 def main():
