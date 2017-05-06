@@ -41,13 +41,6 @@ class Trawler(object):
             self._each_handler('finish_trawl')
 
 
-class DumpFirstOrder(object):
-    def orders(self, orders):
-        if orders:
-            print orders[0].keys()
-            print orders[0].values()
-
-
 def main():
     logging.basicConfig(level=logging.INFO)
 
