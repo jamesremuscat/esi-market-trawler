@@ -54,7 +54,7 @@ def main():
     ]
 
     if 'POSTGRES_USER' in os.environ:
-        print "Using postgres"
+        logging.info("Using postgres")
         handlers.append(
             PostgresHandler.create(
                 os.environ.get("POSTGRES_USER"),
