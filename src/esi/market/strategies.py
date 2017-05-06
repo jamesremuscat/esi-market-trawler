@@ -26,3 +26,10 @@ def IN_ADVANCE_OF_HOUR(prev_start):
     next_hour = now.replace(minutes=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
     next_start = next_hour - prev_duration - datetime.timedelta(minutes=5)
     _wait_until(next_start)
+
+
+by_name = {
+    'continuous': CONTINUOUS,
+    'hourly': HOURLY,
+    'advance': IN_ADVANCE_OF_HOUR
+}

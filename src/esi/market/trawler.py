@@ -3,10 +3,12 @@ from esi.market import strategies
 from esi.market.postgres import PostgresHandler
 from esi.stats import StatsHandler, StatsCollector, StatsWriter, StatsDBWriter
 
+import argparse
 import datetime
 import logging
 import os
 import random
+import sys
 
 
 class Trawler(object):
@@ -47,8 +49,17 @@ class Trawler(object):
             self.strategy(trawl_start)
 
 
+def parse_arguments(args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--strategy', help='Trawling strategy to use', choices=strategies.by_name.keys(), default='continuous')
+
+    return parser.parse_args(args)
+
+
 def main():
     logging.basicConfig(level=logging.INFO)
+
+    args = parse_arguments(sys.argv[1:])
 
     s = StatsCollector()
     sw = StatsWriter(s)
@@ -75,7 +86,8 @@ def main():
 
     trawler = Trawler(
         handlers=handlers,
-        credentials=Credentials.from_environ()
+        credentials=Credentials.from_environ(),
+        strategy=strategies.by_name[args.strategy]
     )
     trawler.trawl()
 
