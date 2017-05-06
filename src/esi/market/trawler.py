@@ -46,7 +46,7 @@ class Trawler(object):
                     page += 1
                 self._each_handler('end_region', region)
             self._each_handler('finish_trawl')
-            self.strategy(trawl_start)
+            self._strategy(trawl_start)
 
 
 def parse_arguments(args):
