@@ -11,7 +11,7 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 def with_cursor(func):
     def inner(*args, **kwargs):
         with psycopg2.connect(
-            user=os.environ.get("POSTGRES_USERNAME"),
+            user=os.environ.get("POSTGRES_USER"),
             password=os.environ.get("POSTGRES_PASSWORD"),
             database=os.environ.get("POSTGRES_DB"),
             host=os.environ.get("POSTGRES_HOST", "localhost")
