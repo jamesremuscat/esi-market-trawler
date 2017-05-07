@@ -2,9 +2,11 @@ from datetime import datetime, timedelta
 from esi._version import VERSION
 
 import base64
+import logging
 import os
 import requests
 import time
+import backoff
 
 
 USER_AGENT_STRING = 'esi-market-trawler/{} (muscaat@eve-markets.net)'.format(VERSION)
@@ -97,6 +99,10 @@ class ESI(object):
             self._token_store = None
 
     @rate_limited(20)
+    @backoff.on_exception(
+        backoff.expo,
+        requests.exceptions.HTTPError
+    )
     def get(self, endpoint, version='latest', page=None):
         headers = {
             'User-Agent': USER_AGENT_STRING
