@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 from esi._version import VERSION
 
+import backoff
 import base64
 import logging
 import os
 import requests
 import time
-import backoff
 
 
 USER_AGENT_STRING = 'esi-market-trawler/{} (muscaat@eve-markets.net)'.format(VERSION)
