@@ -92,18 +92,20 @@ def rate_limited(max_per_second):
 class ESI(object):
     BASE_URL = 'https://esi.tech.ccp.is'
 
-    def __init__(self, credentials=None):
+    def __init__(self, credentials=None, on_esi_error=None):
         if credentials:
             self._token_store = TokenStore(credentials)
         else:
             self._token_store = None
+        self.get = rate_limited(20)(
+            backoff.on_exception(
+                backoff.expo,
+                requests.exceptions.HTTPError,
+                on_backoff=on_esi_error
+            )(self._get)
+        )
 
-    @rate_limited(20)
-    @backoff.on_exception(
-        backoff.expo,
-        requests.exceptions.HTTPError
-    )
-    def get(self, endpoint, version='latest', page=None):
+    def _get(self, endpoint, version='latest', page=None):
         headers = {
             'User-Agent': USER_AGENT_STRING
         }

@@ -14,8 +14,8 @@ import sys
 class Trawler(object):
     log = logging.getLogger(__name__)
 
-    def __init__(self, handlers=[], credentials=None, strategy=strategies.CONTINUOUS):
-        self._esi = ESI(credentials)
+    def __init__(self, handlers=[], credentials=None, strategy=strategies.CONTINUOUS, on_esi_error=None):
+        self._esi = ESI(credentials, on_esi_error=on_esi_error)
         self._handlers = handlers
         self._strategy = strategy
 
@@ -84,10 +84,14 @@ def main():
         sdw = StatsDBWriter(s)
         sdw.start()
 
+    def on_esi_error(*args):
+        s.tally('esi_http_errors')
+
     trawler = Trawler(
         handlers=handlers,
         credentials=Credentials.from_environ(),
-        strategy=strategies.by_name[args.strategy]
+        strategy=strategies.by_name[args.strategy],
+        on_esi_error=on_esi_error
     )
     trawler.trawl()
 
