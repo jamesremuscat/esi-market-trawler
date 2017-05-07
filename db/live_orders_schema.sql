@@ -80,6 +80,12 @@ CREATE INDEX typeandbid ON live_orders USING btree (typeid, isbid);
 
 CREATE INDEX typeandregion ON live_orders USING btree (typeid, regionid);
 
+--
+-- Name: region; Type: INDEX; Schema: public; Owner: eve; Tablespace: 
+--
+
+CREATE INDEX region ON live_orders USING btree (regionid);
+
 
 --
 -- PostgreSQL database dump complete
