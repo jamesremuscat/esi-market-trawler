@@ -1,11 +1,16 @@
 import datetime
+import logging
 import time
 
 
 def _wait_until(endtime):
+    log = logging.getLogger(__name__)
+    log.info('Next scheduled trawl at {}'.format(endtime))
     now = datetime.datetime.utcnow
     while endtime > now():
-        time.sleep((endtime - now()).total_seconds)
+        sleeptime = (endtime - now()).total_seconds()
+        log.info('Sleeping for {} seconds'.format(sleeptime))
+        time.sleep(sleeptime)
 
 
 def CONTINUOUS(_):
