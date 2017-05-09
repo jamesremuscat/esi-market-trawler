@@ -100,7 +100,7 @@ class ESI(object):
         self.get = rate_limited(20)(
             backoff.on_exception(
                 backoff.expo,
-                requests.exceptions.HTTPError,
+                requests.exceptions.RequestException,
                 on_backoff=on_esi_error
             )(self._get)
         )
