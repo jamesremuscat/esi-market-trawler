@@ -1,6 +1,7 @@
 import datetime
 import dateutil.parser
 import io
+import logging
 import psycopg2
 import sys
 
@@ -74,6 +75,8 @@ def map_order_for(region):
 
 
 class PostgresHandler(object):
+    log = logging.getLogger(__name__)
+
     def __init__(self, connection):
         self.connection = connection
 
@@ -83,42 +86,36 @@ class PostgresHandler(object):
         self.current_region = region
 
     def orders(self, orders):
-        itf = IteratorFile((
-            u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format(*x) for x in map(map_order_for(self.current_region), orders)
-        ))
+        try:
+            itf = IteratorFile((
+                u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format(*x) for x in map(map_order_for(self.current_region), orders)
+            ))
 
-        with self.connection.cursor() as cur:
+            with self.connection.cursor() as cur:
 
-            cur.execute('CREATE TEMP TABLE orders_incoming AS SELECT * FROM live_orders WITH NO DATA')
-            cur.copy_from(
-                itf,
-                'orders_incoming',
-                columns=(
-                    'orderid',
-                    'typeid',
-                    'regionid',
-                    'price',
-                    'volRemaining',
-                    'range',
-                    'volEntered',
-                    'minVolume',
-                    'isBid',
-                    'issueDate',
-                    'duration',
-                    'locationid',
-                    'expiry'
-                ),
-                null="None"
-            )
-            cur.execute('INSERT INTO live_orders SELECT * FROM orders_incoming ON CONFLICT (orderid) DO UPDATE \
-            SET typeid = excluded.typeid, regionid = excluded.regionid, price = excluded.price, \
-            volRemaining = excluded.volRemaining, range = excluded.range, volEntered = excluded.volEntered, \
-            minVolume = excluded.minVolume, isBid = excluded.isBid, issueDate = excluded.issueDate, \
-            duration = excluded.duration, locationid = excluded.locationid, expiry = excluded.expiry')
-            cur.execute('DROP TABLE orders_incoming')
-
-    def end_region(self, region):
-        self.connection.commit()
+                cur.copy_from(
+                    itf,
+                    'live_orders',
+                    columns=(
+                        'orderid',
+                        'typeid',
+                        'regionid',
+                        'price',
+                        'volRemaining',
+                        'range',
+                        'volEntered',
+                        'minVolume',
+                        'isBid',
+                        'issueDate',
+                        'duration',
+                        'locationid',
+                        'expiry'
+                    ),
+                    null="None"
+                )
+        except psycopg2.IntegrityError:
+            # https://github.com/ccpgames/esi-issues/issues/194
+            self.log.warn('Discarding page as it contains a duplicated order ID')
 
     @staticmethod
     def create(username, password, host, database):
@@ -128,4 +125,5 @@ class PostgresHandler(object):
             host=host,
             database=database
         )
+        conn.autocommit = True
         return PostgresHandler(conn)
