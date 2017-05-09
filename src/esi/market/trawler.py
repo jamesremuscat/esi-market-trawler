@@ -77,7 +77,8 @@ def main():
                 os.environ.get("POSTGRES_USER"),
                 os.environ.get("POSTGRES_PASSWORD"),
                 os.environ.get("POSTGRES_HOST", "localhost"),
-                os.environ.get("POSTGRES_DB")
+                os.environ.get("POSTGRES_DB"),
+                s
             )
         )
 
@@ -94,6 +95,7 @@ def main():
         on_esi_error=on_esi_error
     )
     trawler.trawl()
+
 
 if __name__ == '__main__':
     main()

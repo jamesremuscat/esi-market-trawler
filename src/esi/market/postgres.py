@@ -77,8 +77,9 @@ def map_order_for(region):
 class PostgresHandler(object):
     log = logging.getLogger(__name__)
 
-    def __init__(self, connection):
+    def __init__(self, connection, stats_collector):
         self.connection = connection
+        self.stats_collector = stats_collector
 
     def start_region(self, region):
         self.cursor = self.connection.cursor()
@@ -113,12 +114,14 @@ class PostgresHandler(object):
                     ),
                     null="None"
                 )
+            self.stats_collector.tally('database_orders_inserted', len(orders))
         except psycopg2.IntegrityError:
             # https://github.com/ccpgames/esi-issues/issues/194
             self.log.warn('Discarding page as it contains a duplicated order ID')
+            self.stats_collector.tally('esi_duplicate_ids')
 
     @staticmethod
-    def create(username, password, host, database):
+    def create(username, password, host, database, stats_collector):
         conn = psycopg2.connect(
             user=username,
             password=password,
@@ -126,4 +129,4 @@ class PostgresHandler(object):
             database=database
         )
         conn.autocommit = True
-        return PostgresHandler(conn)
+        return PostgresHandler(conn, stats_collector)
