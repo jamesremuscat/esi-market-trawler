@@ -28,7 +28,7 @@ def IN_ADVANCE_OF_HOUR(prev_start):
     '''Time the next trawl to end just before the start of the next hour, based on the previous duration.'''
     now = datetime.datetime.utcnow()
     prev_duration = now - prev_start
-    next_hour = now.replace(minutes=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
+    next_hour = now.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
     next_start = next_hour - prev_duration - datetime.timedelta(minutes=5)
     _wait_until(next_start)
 
