@@ -120,7 +120,15 @@ class ESI(object):
                 endpoint,
                 'page={}'.format(page) if page else ''
             ),
-            headers=headers
+            headers=headers,
+            timeout=5
         )
         resp.raise_for_status()
-        return resp.json()
+        try:
+            return resp.json()
+        except ValueError:
+           logging.error(u"Couldn't parse this as JSON! {}, '{}'".format(resp, resp.headers))
+           with open("{}".format(time.time), 'wb') as dumpfile:
+               dumpfile.write(resp.text)
+               logging.info("Written dump file for further investigation.")
+           return {}
